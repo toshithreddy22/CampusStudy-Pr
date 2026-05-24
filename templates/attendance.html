@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Attendance Tracker</h2>
+  <form method="post" class="form-grid">
+    <div>
+      <label for="student_id">Student</label>
+      <select id="student_id" name="student_id" required>
+        <option value="">Select student</option>
+        {% for student in students %}
+        <option value="{{ student.id }}">{{ student.name }} ({{ student.student_id }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="status">Status</label>
+      <select id="status" name="status" required>
+        <option value="">Select status</option>
+        <option>Present</option>
+        <option>Absent</option>
+        <option>Late</option>
+      </select>
+    </div>
+    <div>
+      <label for="date">Date</label>
+      <input type="date" id="date" name="date" required />
+    </div>
+    <div style="grid-column: 1 / -1;">
+      <button type="submit">Record Attendance</button>
+    </div>
+  </form>
+</div>
+<div class="card">
+  <h2>Attendance Records</h2>
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Registration No.</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in attendance %}
+        <tr>
+          <td>{{ record.name }}</td>
+          <td>{{ record.reg_no }}</td>
+          <td>{{ record.status }}</td>
+          <td>{{ record.date }}</td>
+          <td>
+            <div class="table-actions">
+              <form method="post" action="/attendance/delete/{{ record.id }}" onsubmit="return confirm('Delete this record?');">
+                <button type="submit" class="action-danger">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+        {% if attendance|length == 0 %}
+        <tr>
+          <td colspan="5">No attendance records yet.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

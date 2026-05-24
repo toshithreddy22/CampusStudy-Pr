@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card login-card">
+  <h2>Admin Login</h2>
+  <form method="post" class="form-grid">
+    <div>
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="admin" required />
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter password" required />
+    </div>
+    <div style="grid-column: 1 / -1;">
+      <button type="submit">Sign In</button>
+    </div>
+  </form>
+  <p style="margin-top: 18px; color: #475569;">Use the default admin credentials on first run.</p>
+</div>
+{% endblock %}

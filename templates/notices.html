@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Notices</h2>
+  <form method="post" class="form-grid">
+    <div>
+      <label for="title">Notice Title</label>
+      <input type="text" id="title" name="title" placeholder="Notice heading" required />
+    </div>
+    <div>
+      <label for="published_on">Published On</label>
+      <input type="date" id="published_on" name="published_on" required />
+    </div>
+    <div style="grid-column: 1 / -1;">
+      <label for="message">Message</label>
+      <textarea id="message" name="message" placeholder="Write the notice details" required></textarea>
+    </div>
+    <div style="grid-column: 1 / -1;">
+      <button type="submit">Post Notice</button>
+    </div>
+  </form>
+</div>
+<div class="card">
+  <h2>Notice Board</h2>
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Message</th>
+          <th>Published On</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for notice in notices %}
+        <tr>
+          <td>{{ notice.title }}</td>
+          <td>{{ notice.message }}</td>
+          <td>{{ notice.published_on }}</td>
+          <td>
+            <div class="table-actions">
+              <form method="post" action="/notices/delete/{{ notice.id }}" onsubmit="return confirm('Delete this notice?');">
+                <button type="submit" class="action-danger">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+        {% if notices|length == 0 %}
+        <tr>
+          <td colspan="4">No notices posted yet.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

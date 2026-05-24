@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CampusStudy Pr</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-left">
+        <div class="brand">
+          <span class="brand-mark">CSP</span>
+          <div>
+            <h1>CampusStudy Pr</h1>
+            <p>Professional administration for students, attendance, assignments, notices, and library resources.</p>
+          </div>
+        </div>
+      </div>
+      <nav>
+        <a href="/">Dashboard</a>
+        <a href="/students">Students</a>
+        <a href="/attendance">Attendance</a>
+        <a href="/assignments">Assignments</a>
+        <a href="/notices">Notices</a>
+        <a href="/library">Library</a>
+        <a href="/doubts">ChatGPT</a>
+      </nav>
+    </header>
+    <main>
+      <section class="flash-grid">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </section>
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

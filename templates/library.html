@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>B.Tech Library</h2>
+  <p>Explore a complete textbook collection for first-year common subjects and branch-wise core courses.</p>
+  <form method="post" class="form-grid">
+    <div>
+      <label for="title">Book Title</label>
+      <input type="text" id="title" name="title" placeholder="Enter textbook title" required />
+    </div>
+    <div>
+      <label for="author">Author</label>
+      <input type="text" id="author" name="author" placeholder="Enter author name" required />
+    </div>
+    <div>
+      <label for="course">Course</label>
+      <input type="text" id="course" name="course" placeholder="e.g. Data Structures" required />
+    </div>
+    <div>
+      <label for="branch">Branch</label>
+      <input type="text" id="branch" name="branch" placeholder="e.g. CSE, ECE, ME" required />
+    </div>
+    <div>
+      <label for="semester">Semester</label>
+      <select id="semester" name="semester" required>
+        <option value="">Select semester</option>
+        <option>1st Semester</option>
+        <option>2nd Semester</option>
+        <option>3rd Semester</option>
+        <option>4th Semester</option>
+        <option>5th Semester</option>
+        <option>6th Semester</option>
+        <option>7th Semester</option>
+        <option>8th Semester</option>
+      </select>
+    </div>
+    <div>
+      <label for="edition">Edition</label>
+      <input type="text" id="edition" name="edition" placeholder="e.g. 4th" />
+    </div>
+    <div style="grid-column: 1 / -1;">
+      <button type="submit">Add Book</button>
+    </div>
+  </form>
+</div>
+<div class="card">
+  <h2>First-Year Subjects</h2>
+  <ul class="info-grid">
+    {% for subject in subjects %}
+    <li>{{ subject }}</li>
+    {% endfor %}
+  </ul>
+</div>
+<div class="card">
+  <h2>Recommended Books for All B.Tech Students</h2>
+  <div class="table-responsive book-table-small">
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Book</th>
+          <th>Author</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in recommended_books %}
+        <tr>
+          <td>{{ item.subject }}</td>
+          <td>{{ item.title }}</td>
+          <td>{{ item.author }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="card">
+  <h2>Branch-wise Core Books</h2>
+  <div class="branch-grid">
+    {% for branch, books in branch_books.items() %}
+    <div class="branch-card">
+      <h3>{{ branch }}</h3>
+      <ul>
+        {% for book in books %}
+        <li><strong>{{ book.title }}</strong><br /><span>{{ book.author }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<div class="card resource-card">
+  <div>
+    <h2>Helpful YouTube Resource</h2>
+    <p>Watch expert playlists for first-year engineering subjects, branch-wise courses, and exam preparation.</p>
+  </div>
+  <div>
+    {% for resource in resources %}
+    <a href="{{ resource.url }}" target="_blank" rel="noopener" class="button">{{ resource.title }}</a>
+    {% endfor %}
+  </div>
+</div>
+<div class="card">
+  <h2>ChatGPT for Doubts</h2>
+  <p>Ask ChatGPT about textbooks, exam prep, or subject doubts and get instant guidance for your B.Tech studies.</p>
+  <a href="/doubts" class="button">Open ChatGPT Assistant</a>
+</div>
+<div class="card">
+  <h2>Library Catalog</h2>
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Course</th>
+          <th>Branch</th>
+          <th>Semester</th>
+          <th>Edition</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for book in books %}
+        <tr>
+          <td>{{ book.title }}</td>
+          <td>{{ book.author }}</td>
+          <td>{{ book.course }}</td>
+          <td>{{ book.branch }}</td>
+          <td>{{ book.semester }}</td>
+          <td>{{ book.edition or '—' }}</td>
+          <td>
+            <div class="table-actions">
+              <form method="post" action="/library/delete/{{ book.id }}" onsubmit="return confirm('Delete this book from library?');">
+                <button type="submit" class="action-danger">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+        {% if books|length == 0 %}
+        <tr>
+          <td colspan="7">No books are currently available in the library.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="top-actions">
+    <div>
+      <h2>Welcome to CampusStudy Pr</h2>
+      <p>Track students, attendance, assignments, notices, and B.Tech course books in one polished interface.</p>
+    </div>
+    <a class="button" href="/library">Explore Library</a>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total students</h3>
+      <strong>{{ stats.students }}</strong>
+    </div>
+    <div class="stat-card">
+      <h3>Attendance records</h3>
+      <strong>{{ stats.attendance }}</strong>
+    </div>
+    <div class="stat-card">
+      <h3>Assignments</h3>
+      <strong>{{ stats.assignments }}</strong>
+    </div>
+    <div class="stat-card">
+      <h3>Library books</h3>
+      <strong>{{ stats.books }}</strong>
+    </div>
+  </div>
+</div>
+<div class="grid-stack">
+  <div class="card">
+    <h2>Upcoming assignments</h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr><th>Title</th><th>Due Date</th></tr>
+        </thead>
+        <tbody>
+          {% for assignment in recent_assignments %}
+          <tr><td>{{ assignment.title }}</td><td>{{ assignment.due_date }}</td></tr>
+          {% endfor %}
+          {% if recent_assignments|length == 0 %}
+          <tr><td colspan="2">No assignments available.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Latest notices</h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr><th>Title</th><th>Published</th></tr>
+        </thead>
+        <tbody>
+          {% for notice in recent_notices %}
+          <tr><td>{{ notice.title }}</td><td>{{ notice.published_on }}</td></tr>
+          {% endfor %}
+          {% if recent_notices|length == 0 %}
+          <tr><td colspan="2">No notices posted yet.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <h2>Recent attendance</h2>
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr><th>Student</th><th>Status</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {% for item in recent_attendance %}
+        <tr><td>{{ item.name }}</td><td>{{ item.status }}</td><td>{{ item.date }}</td></tr>
+        {% endfor %}
+        {% if recent_attendance|length == 0 %}
+        <tr><td colspan="3">No attendance records yet.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

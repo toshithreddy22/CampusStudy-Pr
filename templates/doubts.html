@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card chat-card">
+  <h2>ChatGPT Doubts Assistant</h2>
+  <p>Ask any question related to B.Tech subjects, textbooks, exam preparation, or study strategies. ChatGPT will help you with clear guidance.</p>
+  <form method="post">
+    <label for="question">Type your doubt</label>
+    <textarea id="question" name="question" placeholder="What do you want to know?" required>{{ question or '' }}</textarea>
+    <button type="submit">Ask ChatGPT</button>
+  </form>
+  {% if answer is not none %}
+  <div class="ai-answer">
+    <strong>ChatGPT Answer</strong>
+    <p>{{ answer }}</p>
+  </div>
+  {% endif %}
+  <div>
+    <h3>Sample prompts</h3>
+    <ul class="ai-sample-prompts">
+      <li>How should I prepare for Engineering Mathematics?</li>
+      <li>Which book is best for learning DBMS in CSE?</li>
+      <li>Give me study tips for Engineering Drawing.</li>
+      <li>What is the best way to revise Digital Electronics?</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
