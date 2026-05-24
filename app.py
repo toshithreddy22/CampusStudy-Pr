@@ -1,14 +1,29 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 import sqlite3
 import os
 import openai
+import shutil
+import tempfile
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-campus-secret-key")
-DATABASE = os.path.join(os.path.dirname(__file__), "campus.db")
+
+# Determine database path (use OS temp directory on Vercel read-only environment)
+if os.environ.get("VERCEL"):
+    DATABASE = os.path.join(tempfile.gettempdir(), "campus.db")
+    src_db = os.path.join(os.path.dirname(__file__), "campus.db")
+    if not os.path.exists(DATABASE):
+        if os.path.exists(src_db):
+            try:
+                shutil.copy2(src_db, DATABASE)
+            except Exception:
+                pass
+else:
+    DATABASE = os.path.join(os.path.dirname(__file__), "campus.db")
+
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-if OPENAI_API_KEY:
-    openai.api_key = OPENAI_API_KEY
+
 
 COMMON_FIRST_YEAR_SUBJECTS = [
     "Engineering Mathematics",
@@ -94,7 +109,8 @@ def get_chatgpt_response(question):
     )
 
     try:
-        completion = openai.ChatCompletion.create(
+        client = openai.OpenAI(api_key=OPENAI_API_KEY)
+        completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a knowledgeable and friendly assistant for engineering students preparing for B.Tech courses."},
@@ -278,7 +294,51 @@ def init_db():
     conn.close()
 
 
+# Initialize database on module load (necessary for Vercel/production imports)
+init_db()
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get("logged_in"):
+            flash("Please log in to access this page.", "error")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if session.get("logged_in"):
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        # Simple default credentials: admin / admin123
+        if username == "admin" and password == "admin123":
+            session["logged_in"] = True
+            session["username"] = username
+            flash("Logged in successfully as Admin.", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("Invalid username or password.", "error")
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.pop("logged_in", None)
+    session.pop("username", None)
+    flash("You have been logged out.", "success")
+    return redirect(url_for("login"))
+
+
 @app.route("/")
+@login_required
 def index():
     conn = get_db_connection()
     stats = {
@@ -308,6 +368,7 @@ def index():
 
 
 @app.route("/students", methods=["GET", "POST"])
+@login_required
 def students():
     conn = get_db_connection()
     if request.method == "POST":
@@ -335,6 +396,7 @@ def students():
 
 
 @app.route("/students/delete/<int:student_id>", methods=["POST"])
+@login_required
 def delete_student(student_id):
     conn = get_db_connection()
     conn.execute("DELETE FROM students WHERE id = ?", (student_id,))
@@ -345,6 +407,7 @@ def delete_student(student_id):
 
 
 @app.route("/attendance", methods=["GET", "POST"])
+@login_required
 def attendance():
     conn = get_db_connection()
     students = conn.execute("SELECT * FROM students ORDER BY name").fetchall()
@@ -371,6 +434,7 @@ def attendance():
 
 
 @app.route("/attendance/delete/<int:attendance_id>", methods=["POST"])
+@login_required
 def delete_attendance(attendance_id):
     conn = get_db_connection()
     conn.execute("DELETE FROM attendance WHERE id = ?", (attendance_id,))
@@ -381,6 +445,7 @@ def delete_attendance(attendance_id):
 
 
 @app.route("/assignments", methods=["GET", "POST"])
+@login_required
 def assignments():
     conn = get_db_connection()
     if request.method == "POST":
@@ -404,6 +469,7 @@ def assignments():
 
 
 @app.route("/assignments/delete/<int:assignment_id>", methods=["POST"])
+@login_required
 def delete_assignment(assignment_id):
     conn = get_db_connection()
     conn.execute("DELETE FROM assignments WHERE id = ?", (assignment_id,))
@@ -414,6 +480,7 @@ def delete_assignment(assignment_id):
 
 
 @app.route("/notices", methods=["GET", "POST"])
+@login_required
 def notices():
     conn = get_db_connection()
     if request.method == "POST":
@@ -437,6 +504,7 @@ def notices():
 
 
 @app.route("/notices/delete/<int:notice_id>", methods=["POST"])
+@login_required
 def delete_notice(notice_id):
     conn = get_db_connection()
     conn.execute("DELETE FROM notices WHERE id = ?", (notice_id,))
@@ -447,6 +515,7 @@ def delete_notice(notice_id):
 
 
 @app.route("/library", methods=["GET", "POST"])
+@login_required
 def library():
     conn = get_db_connection()
     if request.method == "POST":
@@ -480,6 +549,7 @@ def library():
 
 
 @app.route("/library/delete/<int:book_id>", methods=["POST"])
+@login_required
 def delete_book(book_id):
     conn = get_db_connection()
     conn.execute("DELETE FROM books WHERE id = ?", (book_id,))
@@ -490,6 +560,7 @@ def delete_book(book_id):
 
 
 @app.route("/doubts", methods=["GET", "POST"])
+@login_required
 def doubts():
     question = ""
     answer = None
@@ -500,5 +571,4 @@ def doubts():
 
 
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)

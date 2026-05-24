@@ -18,13 +18,18 @@
         </div>
       </div>
       <nav>
-        <a href="/">Dashboard</a>
-        <a href="/students">Students</a>
-        <a href="/attendance">Attendance</a>
-        <a href="/assignments">Assignments</a>
-        <a href="/notices">Notices</a>
-        <a href="/library">Library</a>
-        <a href="/doubts">ChatGPT</a>
+        {% if session.get('logged_in') %}
+          <a href="/">Dashboard</a>
+          <a href="/students">Students</a>
+          <a href="/attendance">Attendance</a>
+          <a href="/assignments">Assignments</a>
+          <a href="/notices">Notices</a>
+          <a href="/library">Library</a>
+          <a href="/doubts">ChatGPT</a>
+          <a href="/logout" style="background: rgba(239, 68, 68, 0.65);">Logout (Admin)</a>
+        {% else %}
+          <a href="/login">Admin Login</a>
+        {% endif %}
       </nav>
     </header>
     <main>
